@@ -37,20 +37,14 @@
         "name": "CSV Shield",
         "url": "https://irisresearcher.github.io/csv-sanitizer/",
         "applicationCategory": "BusinessApplication",
-        "operatingSystem": "All (Web Browser PWA)",
+        "operatingSystem": "Any (web browser)",
         "description": "100% in-browser, private, offline CSV repair, deduplication, and PII anonymizer with zero cloud uploads.",
         "offers": [
           {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD",
-            "name": "Free Web Tier"
-          },
-          {
-            "@type": "Offer",
-            "price": "15",
-            "priceCurrency": "USD",
-            "name": "Pro Lifetime License"
+            "name": "Free"
           }
         ],
         "featureList": [
@@ -72,7 +66,7 @@
             "name": "How does CSV Shield fix broken quotes without uploading files?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "CSV Shield executes entirely within your browser's local JavaScript engine and Web Workers. It analyzes raw text lines using RFC 4180 heuristic regex matching to identify internal quotes in cells without ever transmitting data over the Internet."
+              "text": "CSV Shield executes entirely within your browser's own JavaScript engine. It analyzes raw text lines using RFC 4180 heuristic regex matching to identify internal quotes in cells without ever transmitting data over the Internet."
             }
           },
           {
@@ -88,7 +82,7 @@
             "name": "Is CSV Shield safe for confidential and GDPR-protected data?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. Because CSV Shield does not use any cloud servers, backends, or third-party telemetry, your data never leaves your computer. It fully complies with GDPR, HIPAA, and strict corporate non-disclosure agreements."
+              "text": "Yes. Because CSV Shield does not use any cloud servers, backends, or third-party telemetry, your data never leaves your computer. Whether that meets a particular data-protection rule is for the user's organisation to decide; the tool is not a compliance certification."
             }
           },
           {
@@ -122,13 +116,8 @@
     </div>
     <div class="privacy-badge">
       <span class="live-dot"></span>
-      <span class="badge-text">100% In-Browser • 0 Bytes Uploaded</span>
-      <button id="btn-show-inspector" class="badge-action" title="View live network traffic proof">Inspect</button>
-    </div>
-    <div class="header-actions">
-      <button id="btn-pro-modal" class="btn btn-pro">
-        <span class="star-icon">★</span> Get Pro ($15)
-      </button>
+      <span class="badge-text">Runs in your browser • files are not uploaded</span>
+      <button id="btn-show-inspector" class="badge-action" title="See every request this page has made">Check</button>
     </div>
   </header>
 
@@ -192,14 +181,14 @@
           <label class="check-item" title="Auto-repairs garbled characters (â€™, Ã©, etc.) from Windows-1252 / UTF-8 mismatches">
             <input type="checkbox" id="chk-mojibake" checked> Fix Mojibake (â€™, Ã©)
           </label>
-          <label class="check-item" title="Preserves numeric codes like 07030, 00142 so Excel doesn't truncate them">
-            <input type="checkbox" id="chk-zeros" checked> Preserve Leading Zeros
+          <label class="check-item" title="Writes codes like 07030 as =&quot;07030&quot; so Excel keeps the zero. Leave off if the file is going into a database or another app: they will see the formula, not the number.">
+            <input type="checkbox" id="chk-zeros"> Keep leading zeros in Excel
           </label>
           <label class="check-item" title="Removes leading and trailing whitespace from each cell">
             <input type="checkbox" id="chk-whitespace" checked> Trim Whitespace
           </label>
-          <label class="check-item" title="Removes completely duplicate rows">
-            <input type="checkbox" id="chk-dedupe" checked> Deduplicate Rows
+          <label class="check-item" title="Removes rows that are identical in every column. Off by default: two identical order lines can be real.">
+            <input type="checkbox" id="chk-dedupe"> Remove duplicate rows
           </label>
           <label class="check-item" title="Removes completely blank lines">
             <input type="checkbox" id="chk-empty" checked> Remove Empty Rows
@@ -214,10 +203,10 @@
           <label class="check-item" title="Replaces email with j***@domain.com">
             <input type="checkbox" id="chk-mask-email"> Mask Emails
           </label>
-          <label class="check-item" title="Replaces phone with (***) ***-1234">
+          <label class="check-item" title="Masks numbers written like phone numbers (with +, brackets, spaces or dashes), keeping the last 4 digits. Bare digit runs such as order numbers or ISBNs are left alone.">
             <input type="checkbox" id="chk-mask-phone"> Mask Phones
           </label>
-          <label class="check-item" title="Replaces 16-digit cards with ****-****-****-1234">
+          <label class="check-item" title="Masks card numbers (13-19 digits that pass the card checksum, or written in four groups of four), keeping the last 4 digits.">
             <input type="checkbox" id="chk-mask-card"> Mask Cards
           </label>
         </div>
@@ -339,7 +328,7 @@
       <div class="seo-grid">
         <div class="seo-card">
           <h3>🛡️ Zero Server Uploads</h3>
-          <p>Unlike cloud tools that send your confidential customer spreadsheets to remote servers, CSV Shield processes every byte locally inside your browser's V8 engine. Fully compliant with GDPR, HIPAA, and corporate NDAs.</p>
+          <p>Unlike cloud tools that send your confidential customer spreadsheets to remote servers, CSV Shield processes every byte locally inside your browser. That can make it easier to follow your company's data rules, but it is not a compliance certification.</p>
         </div>
         <div class="seo-card">
           <h3>⚡ RFC 4180 Quote Auto-Repair</h3>
@@ -360,7 +349,7 @@
         <h3>Frequently Asked Questions</h3>
         <details class="faq-item">
           <summary>How does CSV Shield fix broken quotes without uploading my data?</summary>
-          <p>CSV Shield executes entirely within your browser's local JavaScript engine and Web Workers. It analyzes raw text lines using RFC 4180 heuristic regex matching to identify internal quotes in cells without ever transmitting data over the Internet.</p>
+          <p>CSV Shield executes entirely within your browser's own JavaScript engine. It analyzes raw text lines using RFC 4180 heuristic regex matching to identify internal quotes in cells without ever transmitting data over the Internet.</p>
         </details>
         <details class="faq-item">
           <summary>Why does Microsoft Excel shift my CSV data into wrong rows?</summary>
@@ -368,7 +357,7 @@
         </details>
         <details class="faq-item">
           <summary>Is CSV Shield safe for confidential and GDPR-protected data?</summary>
-          <p>Yes. CSV Shield has zero cloud backends, zero analytics beacons, and zero telemetry. You can disconnect your Wi-Fi or turn on Airplane Mode and the app continues working completely offline.</p>
+          <p>Your file is processed on your own computer and is not uploaded. The page has no analytics or tracking scripts. Once it has loaded you can switch off your connection and it keeps working. Whether that is enough for your data rules is for you or your company to decide; this is not a legal or compliance certification.</p>
         </details>
         <details class="faq-item">
           <summary>How do I resolve mangled accents and characters (mojibake)?</summary>
@@ -391,7 +380,7 @@
         </a>
         <a href="offline-gdpr-csv-sanitizer.html" class="use-case-card" style="padding: 1.25rem; border-radius: 12px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(99, 102, 241, 0.25); text-decoration: none; color: inherit; display: block; transition: all 0.2s ease;">
           <span style="font-size: 0.75rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Enterprise Compliance</span>
-          <strong style="display: block; font-size: 1rem; color: #f8fafc; margin-bottom: 0.5rem;">Offline GDPR & HIPAA Sanitizer</strong>
+          <strong style="display: block; font-size: 1rem; color: #f8fafc; margin-bottom: 0.5rem;">Clean confidential CSVs offline</strong>
           <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin: 0;">100% in-browser air-gapped processing designed to pass corporate DLP and audit standards.</p>
         </a>
         <a href="fix-unescaped-quotes-rfc4180.html" class="use-case-card" style="padding: 1.25rem; border-radius: 12px; background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(99, 102, 241, 0.25); text-decoration: none; color: inherit; display: block; transition: all 0.2s ease;">
@@ -421,64 +410,27 @@
     </section>
   </main>
 
-  <!-- Network Inspector Drawer / Modal -->
+  <!-- Network check: real numbers from the browser's own record of this page's requests -->
   <div id="inspector-modal" class="modal-backdrop" style="display: none;">
     <div class="modal card">
       <div class="modal-header">
-        <h3>Live Network Traffic Inspector</h3>
+        <h3>What this page has loaded</h3>
         <button id="btn-close-inspector" class="btn-close">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="inspector-desc">This live monitor verifies that CSV Shield operates 100% in local memory using the Web Crypto and Web Worker APIs without outbound requests.</p>
+        <p class="inspector-desc">Your file is read with the browser's File API and processed by the JavaScript on this page. It is not sent anywhere. Below is every request the browser has recorded for this page since it opened, updated live.</p>
         <div class="inspector-metrics">
           <div class="metric-row">
-            <span>Outbound Network Requests:</span>
-            <strong class="text-success">0</strong>
+            <span>Requests since the page opened:</span>
+            <strong id="net-count">0</strong>
           </div>
           <div class="metric-row">
-            <span>Data Transmitted to Cloud:</span>
-            <strong class="text-success">0.00 KB</strong>
-          </div>
-          <div class="metric-row">
-            <span>Runtime Execution Mode:</span>
-            <strong>Local Client (Browser DOM / JS Engine)</strong>
-          </div>
-          <div class="metric-row">
-            <span>External CDNs / Telemetry:</span>
-            <strong class="text-success">Disabled (Zero 3rd-Party Scripts)</strong>
+            <span>Requests to other websites:</span>
+            <strong id="net-third">0</strong>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Pro Upgrade Modal -->
-  <div id="pro-modal" class="modal-backdrop" style="display: none;">
-    <div class="modal card pro-card">
-      <div class="modal-header">
-        <div class="pro-header-badge">★ PRO EDITION</div>
-        <button id="btn-close-pro" class="btn-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <h2>CSV Shield Pro (Lifetime License)</h2>
-        <p class="pro-tagline">Supercharge your offline data pipelines with zero subscription fees.</p>
-        
-        <ul class="pro-perks">
-          <li>✓ <strong>Multi-File Batch Mode</strong>: Drag and drop entire folders of 100+ CSVs for automated background cleaning.</li>
-          <li>✓ <strong>Custom Regex Rules</strong>: Define proprietary business rules and phone/address format transformers.</li>
-          <li>✓ <strong>Unlimited Gigabyte Streaming</strong>: Clean files up to 2GB via multithreaded chunked Web Workers.</li>
-          <li>✓ <strong>Native Excel (.xlsx) Export</strong>: One-click conversion to Microsoft Excel workbooks.</li>
-          <li>✓ <strong>Offline Desktop App PWA</strong>: Installable standalone app for Windows and Mac.</li>
-        </ul>
-
-        <div class="pricing-box">
-          <div class="price-amount">$15 <span class="price-period">one-time / lifetime updates</span></div>
-          <p class="payout-note">Secure checkout via Lemon Squeezy • Instant license key delivery</p>
-        </div>
-
-        <a id="btn-checkout-link" href="https://yourstore.lemonsqueezy.com/checkout/buy/pro-license-placeholder" target="_blank" class="btn btn-pro btn-block">
-          Upgrade to Pro for $15
-        </a>
+        <ul id="net-list" class="net-list"></ul>
+        <p class="inspector-desc">You do not have to take this page's word for it: open your browser's developer tools (F12), go to the Network tab, then load a file. Or load the page, switch on airplane mode, and use it offline.</p>
       </div>
     </div>
   </div>

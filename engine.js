@@ -73,28 +73,47 @@
     return bestDelimiter;
   }
 
-  // Mojibake and encoding corruption repair
-  const MOJIBAKE_REPLACEMENTS = [
-    [/â€™/g, "'"], [/â€˜/g, "'"], [/â€œ/g, '"'], [/â€\x9d/g, '"'], [/â€/g, '"'],
-    [/â€“/g, "-"], [/â€”/g, "—"], [/â€¦/g, "..."], [/Â /g, " "], [/Â·/g, "·"],
-    [/Ã©/g, "é"], [/Ã¨/g, "è"], [/Ã /g, "à"], [/Ã¡/g, "á"], [/Ã¢/g, "â"],
-    [/Ã£/g, "ã"], [/Ã¤/g, "ä"], [/Ã¥/g, "å"], [/Ã§/g, "ç"], [/Ã®/g, "î"],
-    [/Ã¯/g, "ï"], [/Ã±/g, "ñ"], [/Ã³/g, "ó"], [/Ã²/g, "ò"], [/Ã´/g, "ô"],
-    [/Ã¶/g, "ö"], [/Ãµ/g, "õ"], [/Ãº/g, "ú"], [/Ã¹/g, "ù"], [/Ã»/g, "û"],
-    [/Ã¼/g, "ü"], [/Ã½/g, "ý"], [/Ã¿/g, "ÿ"], [/Ã‰/g, "É"], [/Ãˆ/g, "È"],
-    [/Ã€/g, "À"], [/Ã/g, "Á"], [/Ã‘/g, "Ñ"], [/Ã“/g, "Ó"], [/Ã–/g, "Ö"],
-    [/Ãœ/g, "Ü"], [/â‚¬/g, "€"], [/Â£/g, "£"], [/Â¥/g, "¥"], [/Â§/g, "§"], [/â„¢/g, "™"], [/Â©/g, "©"], [/Â®/g, "®"],
-    [/Â°/g, "°"], [/Â±/g, "±"]
-  ];
-
+  // Mojibake repair.
+  // Text that was UTF-8 but got read as Windows-1252 turns "é" into "Ã©" and "’" into "â€™".
+  // We find runs that look like that, turn each character back into its Windows-1252 byte, and decode
+  // those bytes as UTF-8. If the bytes are not valid UTF-8, the run was real text and is left alone
+  // (so "SÃO PAULO" or "AÑO" are never touched).
+  const CP1252_HIGH = {
+    0x20AC: 0x80, 0x201A: 0x82, 0x0192: 0x83, 0x201E: 0x84, 0x2026: 0x85, 0x2020: 0x86, 0x2021: 0x87,
+    0x02C6: 0x88, 0x2030: 0x89, 0x0160: 0x8A, 0x2039: 0x8B, 0x0152: 0x8C, 0x017D: 0x8E, 0x2018: 0x91,
+    0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97, 0x02DC: 0x98,
+    0x2122: 0x99, 0x0161: 0x9A, 0x203A: 0x9B, 0x0153: 0x9C, 0x017E: 0x9E, 0x0178: 0x9F
+  };
+  // A lead character (Â-ô = UTF-8 lead bytes C2-F4) followed by one or more continuation characters
+  // (bytes 80-BF as Windows-1252 shows them, plus the five bytes 81 8D 8F 90 9D that survive as C1 controls).
+  const CONT = '\u0080-¿€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ';
+  const MOJIBAKE_RUN = new RegExp('[Â-ô][' + CONT + ']+', 'g');
+  let utf8Decoder = null;
+  function decodeUtf8Strict(bytes) {
+    if (!utf8Decoder) {
+      if (typeof TextDecoder === 'undefined') return null;
+      utf8Decoder = new TextDecoder('utf-8', { fatal: true });
+    }
+    try { return utf8Decoder.decode(new Uint8Array(bytes)); } catch (e) { return null; }
+  }
+  function toCp1252Bytes(s) {
+    const out = [];
+    for (const ch of s) {
+      const cp = ch.codePointAt(0);
+      if (cp < 0x100) out.push(cp);
+      else if (CP1252_HIGH[cp] !== undefined) out.push(CP1252_HIGH[cp]);
+      else return null;
+    }
+    return out;
+  }
   function fixMojibake(text) {
     if (typeof text !== 'string' || !text) return text;
-    let res = text;
-    for (let i = 0; i < MOJIBAKE_REPLACEMENTS.length; i++) {
-      const [pattern, rep] = MOJIBAKE_REPLACEMENTS[i];
-      res = res.replace(pattern, rep);
-    }
-    return res;
+    return text.replace(MOJIBAKE_RUN, run => {
+      const bytes = toCp1252Bytes(run);
+      if (!bytes) return run;
+      const decoded = decodeUtf8Strict(bytes);
+      return decoded === null ? run : decoded;
+    });
   }
 
   // Pre-process and repair unescaped quotes in a raw line or stream
@@ -316,12 +335,42 @@
 
   function maskPhone(val) {
     if (typeof val !== 'string') return val;
-    return val.replace(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?(\d{4})\b/g, '(***) ***-$1');
+    // A phone number here means 7-15 digits written with phone formatting: a leading +, brackets,
+    // or groups separated by spaces, dots or dashes. A bare run of digits (ISBN, EAN, order or
+    // account number) is not masked, and nor is anything that looks like a date.
+    return val.replace(/(?:\+\d{1,3}[\s.-]?)?(?:\(\d{2,5}\)[\s.-]?)?\d{2,5}(?:[\s.-]\d{2,5}){1,4}/g, m => {
+      const digits = m.replace(/\D/g, '');
+      if (digits.length < 7 || digits.length > 15) return m;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(m) || /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(m)) return m;
+      const hasPhoneShape = /^\+/.test(m) || /\(/.test(m) || /[\s.-]/.test(m);
+      if (!hasPhoneShape) return m;
+      return m.replace(/\d(?=(?:\D*\d){4})/g, '*');
+    });
+  }
+
+  function luhnValid(digits) {
+    let sum = 0, alt = false;
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let d = digits.charCodeAt(i) - 48;
+      if (alt) { d *= 2; if (d > 9) d -= 9; }
+      sum += d; alt = !alt;
+    }
+    return sum % 10 === 0;
   }
 
   function maskCreditCard(val) {
     if (typeof val !== 'string') return val;
-    return val.replace(/\b(?:\d{4}[-\s]?){3}(\d{4})\b/g, '****-****-****-$1');
+    return val.replace(/\b\d(?:[ -]?\d){12,18}\b/g, m => {
+      const digits = m.replace(/\D/g, '');
+      if (digits.length < 13 || digits.length > 19) return m;
+      // Written as four groups of four (1234-5678-9012-3456 or with spaces): that is how cards are
+      // shown, so mask it even if the checksum fails (typos and test numbers are still sensitive).
+      const cardShape = /^\d{4}([ -])\d{4}\1\d{4}\1\d{4}$/.test(m);
+      if (!cardShape && !luhnValid(digits)) return m;
+      // ISBN-13 and EAN-13 barcodes start with 978/979 or are 13 digits without separators; skip those.
+      if (digits.length === 13 && !/[ -]/.test(m)) return m;
+      return m.replace(/\d(?=(?:\D*\d){4})/g, '*');
+    });
   }
 
   // Check if string is a numeric value with a meaningful leading zero (e.g. 07030, 004821)
@@ -345,7 +394,7 @@
       fixQuotes: options.fixQuotes !== false,
       fixMojibake: options.fixMojibake !== false,
       trimWhitespace: options.trimWhitespace !== false,
-      deduplicate: options.deduplicate !== false,
+      deduplicate: !!options.deduplicate,
       removeEmptyRows: options.removeEmptyRows !== false,
       normalizeColumns: options.normalizeColumns !== false,
       preserveLeadingZeros: !!options.preserveLeadingZeros,

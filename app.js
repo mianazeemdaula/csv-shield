@@ -68,9 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const inspectorModal = document.getElementById('inspector-modal');
   const btnCloseInspector = document.getElementById('btn-close-inspector');
 
-  const btnProModal = document.getElementById('btn-pro-modal');
-  const proModal = document.getElementById('pro-modal');
-  const btnClosePro = document.getElementById('btn-close-pro');
 
   // Application State
   let rawText = '';
@@ -253,7 +250,7 @@ organic-tea-selection,"Morning "Sunrise" Herbal Tea Variety Pack (60 Bags)","<p>
   function renderResults(result) {
     resultsSection.style.display = 'block';
 
-    statInputRows.textContent = result.stats.totalRowsInput;
+    statInputRows.textContent = Math.max(0, result.stats.totalRowsInput - 1); // data rows, header not counted, same as output
     statOutputRows.textContent = result.rows.length;
     statRepaired.textContent = result.stats.repairedRows;
     statMojibake.textContent = result.stats.mojibakeFixedCount || 0;
@@ -457,25 +454,44 @@ organic-tea-selection,"Morning "Sunrise" Herbal Tea Variety Pack (60 Bags)","<p>
     });
   });
 
+  // Network check: list what the browser has recorded for this page (Resource Timing API).
+  const netCount = document.getElementById('net-count');
+  const netThird = document.getElementById('net-third');
+  const netList = document.getElementById('net-list');
+  function renderNetwork() {
+    const entries = (performance.getEntriesByType ? performance.getEntriesByType('resource') : []);
+    const nav = (performance.getEntriesByType ? performance.getEntriesByType('navigation') : []);
+    const all = nav.concat(entries);
+    const third = all.filter(en => { try { return new URL(en.name).origin !== location.origin; } catch (err) { return false; } });
+    netCount.textContent = String(all.length);
+    netThird.textContent = String(third.length);
+    netThird.className = third.length ? 'text-warning' : 'text-success';
+    netList.textContent = '';
+    all.forEach(en => {
+      const li = document.createElement('li');
+      let label = en.name;
+      try { const u = new URL(en.name); label = (u.origin === location.origin ? '' : u.origin) + u.pathname; } catch (err) { /* keep raw */ }
+      li.textContent = label;
+      netList.appendChild(li);
+    });
+  }
+  if (typeof PerformanceObserver !== 'undefined') {
+    try { new PerformanceObserver(renderNetwork).observe({ type: 'resource', buffered: true }); } catch (err) { /* older browsers */ }
+  }
+
   // Inspector Modal
   btnShowInspector.addEventListener('click', () => {
+    renderNetwork();
     inspectorModal.style.display = 'flex';
   });
   btnCloseInspector.addEventListener('click', () => {
     inspectorModal.style.display = 'none';
   });
 
-  // Pro Modal
-  btnProModal.addEventListener('click', () => {
-    proModal.style.display = 'flex';
-  });
-  btnClosePro.addEventListener('click', () => {
-    proModal.style.display = 'none';
-  });
+
 
   // Close modals on background click
   window.addEventListener('click', (e) => {
     if (e.target === inspectorModal) inspectorModal.style.display = 'none';
-    if (e.target === proModal) proModal.style.display = 'none';
   });
 });

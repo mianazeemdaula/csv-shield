@@ -84,7 +84,7 @@ assert(pipeMD.includes('A \\| B'), 'Markdown Exporter escapes literal pipes in c
 const corruptedMojibake = 'id,product,desc\n1,CafÃ©,Itâ€™s Bobâ€œs tool';
 const mojiResult = CSVSanitizer.process(corruptedMojibake, { fixMojibake: true });
 assert(mojiResult.rows[0][1] === 'Café', `Repaired accent mojibake (got: ${mojiResult.rows[0][1]})`);
-assert(mojiResult.rows[0][2].includes("It's"), `Repaired apostrophe mojibake (got: ${mojiResult.rows[0][2]})`);
+assert(mojiResult.rows[0][2] === 'It’s Bob“s tool', `Repaired apostrophe mojibake back to the original curly quotes (got: ${mojiResult.rows[0][2]})`);
 assert(mojiResult.stats.mojibakeFixedCount >= 2, `Tracked mojibake repair count (${mojiResult.stats.mojibakeFixedCount})`);
 
 // Test 6 (v2.0): Excel UTF-8 BOM Export
