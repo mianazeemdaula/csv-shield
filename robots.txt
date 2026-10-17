@@ -20,4 +20,4 @@ Allow: /
 User-agent: anthropic-ai
 Allow: /
 
-Sitemap: https://irisresearcher.github.io/csv-sanitizer/sitemap.xml
+Sitemap: https://mianazeemdaula.github.io/csv-shield/sitemap.xml

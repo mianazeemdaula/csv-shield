@@ -9,7 +9,7 @@ import json
 import os
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-BASE = 'https://irisresearcher.github.io/csv-sanitizer/'  # change if the site moves
+BASE = 'https://mianazeemdaula.github.io/csv-shield/'  # change if the site moves
 UPDATED = '2026-10-17'
 
 PAGES = [
