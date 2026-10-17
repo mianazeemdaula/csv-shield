@@ -1,0 +1,29 @@
+:root { --bg: #0f172a; --surface: #1e293b; --line: #334155; --text: #e2e8f0; --muted: #94a3b8; --accent: #6366f1; --accent-dark: #4f46e5; --changed: rgba(16, 185, 129, 0.18); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: #a5b4fc; }
+.lp-wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+.lp-top { border-bottom: 1px solid var(--line); background: var(--surface); }
+.lp-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+.lp-brand { font-weight: 800; color: #fff; text-decoration: none; }
+main { padding-top: 32px; padding-bottom: 48px; }
+h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 0 0 12px; color: #fff; }
+h2 { font-size: 22px; margin: 36px 0 8px; color: #fff; }
+.lp-lead { color: var(--muted); font-size: 19px; margin: 0 0 22px; }
+code { background: #0b1222; border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; overflow-wrap: anywhere; }
+.lp-tool { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 8px 0 24px; }
+.lp-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 8px 0; }
+.lp-text { width: 100%; background: #0b1222; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 14px/1.5 ui-monospace, Consolas, monospace; }
+.lp-btn, .lp-file { background: #0b1222; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; font: inherit; font-size: 15px; cursor: pointer; }
+.lp-file input { display: block; margin-top: 6px; font-size: 14px; max-width: 100%; }
+.lp-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.lp-primary:hover { background: var(--accent-dark); }
+.lp-check { font-size: 15px; color: var(--muted); }
+.lp-stats { color: var(--muted); font-size: 15px; min-height: 1.2em; }
+.lp-preview { overflow-x: auto; }
+.lp-preview table { border-collapse: collapse; font-size: 14px; width: 100%; }
+.lp-preview th, .lp-preview td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; white-space: pre-wrap; }
+.lp-preview th { background: #0b1222; }
+.lp-changed { background: var(--changed); }
+.lp-hub { padding-left: 18px; } .lp-hub li { margin: 14px 0; color: var(--muted); }
+.lp-foot { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; padding: 18px 0; }
