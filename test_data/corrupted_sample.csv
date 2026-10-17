@@ -1,0 +1,8 @@
+id,customer_name,email,phone,notes,amount,transaction_date
+0014,Alice Johnson,alice.j@enterprise.com,+1 (555) 234-5678,Standard quarterly subscription renewal,99.00,2026-01-15
+0029,Bob "The Builder" Smith,bob.smith@construct.io,555-987-6543,"Ordered "heavy duty" drill bits for CafÃ© job; itâ€™s expedited",450.50,2026-01-16
+0014,Alice Johnson,alice.j@enterprise.com,+1 (555) 234-5678,Standard quarterly subscription renewal,99.00,2026-01-15
+07030,Charlie Davis,charlie.d@gmail.com,1-800-555-0199,"Requires urgent follow-up on invoice #892 - ZIP code 07030",120.00,2026-01-18
+
+0082,Diana Prince,diana@themyscira.gov,+1-555-321-7654,"Urgent shipment: "Golden Lasso" accessories â€” card 4532-8901-2345-6789 on file",1500.00,2026-01-20
+ 0095 , Evan Wright , evan@wright.org , (555) 888-2233 , "Consulting session â€“ 2 hours" , 300.00 , 2026-01-22 

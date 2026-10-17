@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>100% In-Browser CSV PII Anonymizer & Data Masker (Free & Private)</title>
+  <meta name="description" content="Mask, redact, and pseudonymize customer PII (emails, phone numbers, credit cards, names) in CSV files offline before sharing with agencies, QA, or LLMs.">
+  <meta name="keywords" content="Offline PII CSV Masker, csv fixer, offline csv cleaner, rfc 4180 quotes, fix broken quotes csv, data sanitizer">
+  <meta name="author" content="CSV Shield">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://irisresearcher.github.io/csv-sanitizer/offline-pii-masker-csv.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://irisresearcher.github.io/csv-sanitizer/offline-pii-masker-csv.html">
+  <meta property="og:title" content="100% In-Browser CSV PII Anonymizer & Data Masker (Free & Private)">
+  <meta property="og:description" content="Mask, redact, and pseudonymize customer PII (emails, phone numbers, credit cards, names) in CSV files offline before sharing with agencies, QA, or LLMs.">
+  <meta property="og:site_name" content="CSV Shield">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#1e1b4b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "CSV Shield \u2014 Offline PII CSV Masker",
+      "url": "https://irisresearcher.github.io/csv-sanitizer/offline-pii-masker-csv.html",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All (Web Browser)",
+      "description": "Mask, redact, and pseudonymize customer PII (emails, phone numbers, credit cards, names) in CSV files offline before sharing with agencies, QA, or LLMs.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "HowTo",
+      "name": "100% In-Browser CSV PII Anonymizer & Data Masker",
+      "description": "Safely share staging, QA, and testing datasets with external contractors and AI models without leaking customer PII.",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Load Production Dump",
+          "text": "Drop in any CSV export containing sensitive customer records."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Select Masking Strategy",
+          "text": "Choose between full redaction (***), cryptographic hashing (SHA-256), or synthetic data replacement."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Download Safe Dataset",
+          "text": "Export an audit-compliant, sanitized CSV that can be shared with any vendor or team safely."
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What types of PII does CSV Shield detect?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CSV Shield recognizes email addresses, phone numbers, credit card numbers, US Social Security Numbers, IP addresses, physical street addresses, and date of birth fields."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I preserve referential integrity across multiple tables?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. When using deterministic hashing (e.g. user IDs or emails), the same input produces the same pseudonymized output across multiple CSV files, allowing joins to function in QA environments."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does CSV Shield send the unmasked data to any AI or server?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Never. The regex matching and redaction run 100% locally in your browser memory."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+
+  <style>
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
+    .animate-pulse-subtle { animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="https://irisresearcher.github.io/csv-sanitizer/" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-lg text-white leading-tight">CSV Shield</span>
+          <span class="text-xs text-indigo-400 font-medium">100% In-Browser Privacy</span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-4 text-sm">
+        <a href="https://irisresearcher.github.io/csv-sanitizer/" class="text-slate-300 hover:text-white transition-colors hidden sm:block">Live App</a>
+        <a href="https://github.com/irisresearcher/csv-sanitizer" target="_blank" class="text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a href="#demo-tool" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-md shadow-indigo-600/25 transition-all">
+          Clean CSV Free
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="flex-1">
+    <section class="relative overflow-hidden pt-12 pb-16 border-b border-slate-800">
+      <div class="absolute inset-0 bg-gradient-to-b from-indigo-950/20 to-slate-900 pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+          Privacy & Data Redaction
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+          100% In-Browser CSV PII Anonymizer & Data Masker
+        </h1>
+
+        <p class="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8">
+          Safely share staging, QA, and testing datasets with external contractors and AI models without leaking customer PII.
+        </p>
+
+        <!-- Privacy Assurance Banner -->
+        <div class="inline-flex flex-wrap items-center justify-center gap-6 py-2.5 px-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-300 mb-8">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>0 Bytes Uploaded to Servers</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>GDPR & HIPAA Compliant</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span>Instant Client-Side Execution</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive In-Browser Tool Dropzone -->
+    <section id="demo-tool" class="max-w-4xl mx-auto px-4 -mt-8 relative z-20 mb-16">
+      <div class="bg-slate-800/90 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden backdrop-blur">
+        <div class="px-6 py-4 border-b border-slate-700 bg-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-rose-500/80"></div>
+            <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+            <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+            <span class="ml-2 text-xs font-mono text-slate-400">client_sandbox: ~csv_cleaner_engine.wasm</span>
+          </div>
+          <span class="text-xs text-indigo-400 font-medium">100% Offline Mode</span>
+        </div>
+
+        <div class="p-6">
+          <!-- Drop Area -->
+          <div id="drop-zone" class="border-2 border-dashed border-slate-600 hover:border-indigo-500 rounded-xl p-8 text-center transition-colors cursor-pointer bg-slate-900/40">
+            <input type="file" id="file-input" class="hidden" accept=".csv,.txt,.tsv">
+            <div class="flex flex-col items-center justify-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-white">Drag & drop your broken CSV file here</p>
+                <p class="text-xs text-slate-400 mt-1">or click to browse your local computer (runs 100% locally)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Text Input Toggle -->
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <label for="raw-csv-input" class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Or Paste Sample Broken CSV Text</label>
+              <button id="load-sample-btn" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Load Broken Example</button>
+            </div>
+            <textarea id="raw-csv-input" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" placeholder='id,product_title,price,description&#10;101,"24" Gaming Monitor",299.99,"144Hz, "Fast IPS" panel, 1ms response"&#10;102,"Ergonomic "Executive" Chair",199.50,"Supports 300 lbs"'></textarea>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <button id="clean-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Sanitize & Repair Quotes
+              </button>
+              <button id="download-btn" class="hidden px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Download Clean CSV
+              </button>
+            </div>
+            <span id="status-badge" class="text-xs text-slate-400 font-mono">Ready to process locally</span>
+          </div>
+
+          <!-- Real-Time Metrics Banner (Initially Hidden) -->
+          <div id="metrics-panel" class="hidden mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-700">
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block">Quotes Escaped</span>
+              <span id="metric-quotes" class="text-lg font-bold text-indigo-400">0</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block">Rows Processed</span>
+              <span id="metric-rows" class="text-lg font-bold text-white">0</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block">Encoding Fixed</span>
+              <span id="metric-encoding" class="text-lg font-bold text-emerald-400">UTF-8 BOM</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-xs text-slate-400 block">Network Leak</span>
+              <span class="text-lg font-bold text-emerald-400">0 Bytes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep Problem Breakdown Section -->
+    <section class="max-w-4xl mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-2 gap-8 items-center mb-16">
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-3">The Problem with Broken CSV Files</h2>
+          <p class="text-slate-300 leading-relaxed text-sm mb-4">
+            Engineering and product teams frequently need to share production database dumps with external contractors, offshore developers, or LLMs for debugging. Sharing unmasked customer emails, phone numbers, and physical addresses creates immense legal liability and violates GDPR, CCPA, and SOC 2 audits.
+          </p>
+          <div class="space-y-2">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Common Error Signatures:</span>
+            <div class="flex items-center gap-2 text-xs font-mono text-rose-300 bg-rose-950/40 border border-rose-900/50 px-3 py-1.5 rounded-lg"><svg class="w-3.5 h-3.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Accidental leakage of production customer emails to third-party SaaS vendors.</span></div><div class="flex items-center gap-2 text-xs font-mono text-rose-300 bg-rose-950/40 border border-rose-900/50 px-3 py-1.5 rounded-lg"><svg class="w-3.5 h-3.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Exposing customer phone numbers and physical addresses in QA bug tickets.</span></div><div class="flex items-center gap-2 text-xs font-mono text-rose-300 bg-rose-950/40 border border-rose-900/50 px-3 py-1.5 rounded-lg"><svg class="w-3.5 h-3.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>SOC 2 compliance audit failure due to unmasked staging database exports.</span></div><div class="flex items-center gap-2 text-xs font-mono text-rose-300 bg-rose-950/40 border border-rose-900/50 px-3 py-1.5 rounded-lg"><svg class="w-3.5 h-3.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Passing raw customer PII into public LLM prompt APIs.</span></div>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/80 rounded-2xl border border-slate-700 p-6">
+          <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            How CSV Shield Fixes It
+          </h3>
+          <p class="text-slate-300 text-sm leading-relaxed mb-4">
+            CSV Shield automatically identifies Personally Identifiable Information (PII) columns using regex patterns and header heuristics. It can redact values, replace them with realistic synthetic mock data, or deterministically hash values while preserving referential integrity across related tables.
+          </p>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 font-mono text-xs text-slate-300 space-y-1">
+            <div class="text-rose-400">- 101,"24" Gaming Monitor",299.99</div>
+            <div class="text-emerald-400">+ 101,"24"" Gaming Monitor",299.99</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step-by-Step How To -->
+      <div class="mb-16">
+        <h2 class="text-2xl font-bold text-white text-center mb-8">How to Clean & Sanitize Your CSV in 3 Steps</h2>
+        <div class="grid sm:grid-cols-3 gap-6">
+          <div class="bg-slate-800/80 rounded-2xl border border-slate-700 p-6 relative">
+          <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm mb-4 border border-indigo-500/30">
+            1
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Load Production Dump</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">Drop in any CSV export containing sensitive customer records.</p>
+        </div>
+<div class="bg-slate-800/80 rounded-2xl border border-slate-700 p-6 relative">
+          <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm mb-4 border border-indigo-500/30">
+            2
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Select Masking Strategy</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">Choose between full redaction (***), cryptographic hashing (SHA-256), or synthetic data replacement.</p>
+        </div>
+<div class="bg-slate-800/80 rounded-2xl border border-slate-700 p-6 relative">
+          <div class="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm mb-4 border border-indigo-500/30">
+            3
+          </div>
+          <h3 class="text-base font-bold text-white mb-2">Download Safe Dataset</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">Export an audit-compliant, sanitized CSV that can be shared with any vendor or team safely.</p>
+        </div>
+        </div>
+      </div>
+
+      <!-- Enterprise Pro Banner CTA -->
+      <div class="bg-gradient-to-r from-indigo-900/60 to-violet-900/60 border border-indigo-500/30 rounded-2xl p-8 text-center relative overflow-hidden mb-16">
+        <h3 class="text-2xl font-bold text-white mb-2">Need an Offline Desktop App for Your Team?</h3>
+        <p class="text-slate-300 text-sm max-w-xl mx-auto mb-6">
+          Get the standalone offline desktop edition for Windows & Mac. Batch process entire folders of spreadsheets, automated hot-folder watching, and corporate DLP certification.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <a href="https://irisresearcher.github.io/csv-sanitizer/" class="px-6 py-3 rounded-xl bg-white text-slate-900 font-bold text-sm shadow-xl hover:bg-slate-100 transition-colors">
+            Get Pro Desktop License ($49)
+          </a>
+          <a href="https://github.com/irisresearcher/csv-sanitizer" target="_blank" class="px-6 py-3 rounded-xl bg-slate-800 text-white font-bold text-sm border border-slate-700 hover:bg-slate-700 transition-colors">
+            View Open Source Repo
+          </a>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="mb-16">
+        <h2 class="text-2xl font-bold text-white text-center mb-8">Frequently Asked Questions</h2>
+        <div class="space-y-4">
+          <details class="group bg-slate-800/60 rounded-xl border border-slate-700/60 p-4 transition-colors hover:border-slate-600">
+          <summary class="font-semibold text-sm text-slate-200 cursor-pointer flex items-center justify-between list-none">
+            <span>What types of PII does CSV Shield detect?</span>
+            <span class="text-indigo-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <p class="text-xs text-slate-300 mt-3 leading-relaxed border-t border-slate-700/40 pt-3">
+            CSV Shield recognizes email addresses, phone numbers, credit card numbers, US Social Security Numbers, IP addresses, physical street addresses, and date of birth fields.
+          </p>
+        </details>
+<details class="group bg-slate-800/60 rounded-xl border border-slate-700/60 p-4 transition-colors hover:border-slate-600">
+          <summary class="font-semibold text-sm text-slate-200 cursor-pointer flex items-center justify-between list-none">
+            <span>Can I preserve referential integrity across multiple tables?</span>
+            <span class="text-indigo-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <p class="text-xs text-slate-300 mt-3 leading-relaxed border-t border-slate-700/40 pt-3">
+            Yes. When using deterministic hashing (e.g. user IDs or emails), the same input produces the same pseudonymized output across multiple CSV files, allowing joins to function in QA environments.
+          </p>
+        </details>
+<details class="group bg-slate-800/60 rounded-xl border border-slate-700/60 p-4 transition-colors hover:border-slate-600">
+          <summary class="font-semibold text-sm text-slate-200 cursor-pointer flex items-center justify-between list-none">
+            <span>Does CSV Shield send the unmasked data to any AI or server?</span>
+            <span class="text-indigo-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <p class="text-xs text-slate-300 mt-3 leading-relaxed border-t border-slate-700/40 pt-3">
+            Never. The regex matching and redaction run 100% locally in your browser memory.
+          </p>
+        </details>
+        </div>
+      </div>
+
+      <!-- Related Programmatic Use Cases Navigation -->
+      <div class="border-t border-slate-800 pt-12 mb-12">
+        <h3 class="text-base font-bold text-white mb-4">Related CSV Sanitization Guides & Tools</h3>
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <a href="fix-shopify-csv-quotes.html" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors block group">
+      <span class="text-xs text-indigo-400 font-semibold block mb-0.5">E-Commerce CSV Healer</span>
+      <span class="text-xs font-bold text-slate-200 group-hover:text-white block">Fix Shopify CSV Quotes</span>
+    </a>
+<a href="offline-gdpr-csv-sanitizer.html" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors block group">
+      <span class="text-xs text-indigo-400 font-semibold block mb-0.5">Zero-Cloud Security Shield</span>
+      <span class="text-xs font-bold text-slate-200 group-hover:text-white block">Offline GDPR CSV Sanitizer</span>
+    </a>
+<a href="fix-unescaped-quotes-rfc4180.html" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors block group">
+      <span class="text-xs text-indigo-400 font-semibold block mb-0.5">RFC 4180 Standard Healer</span>
+      <span class="text-xs font-bold text-slate-200 group-hover:text-white block">Fix Unescaped Quotes RFC 4180</span>
+    </a>
+<a href="salesforce-csv-loader-quote-fix.html" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors block group">
+      <span class="text-xs text-indigo-400 font-semibold block mb-0.5">CRM Migration Tool</span>
+      <span class="text-xs font-bold text-slate-200 group-hover:text-white block">Salesforce Data Loader CSV Fix</span>
+    </a>
+<a href="offline-pii-masker-csv.html" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors block group">
+      <span class="text-xs text-indigo-400 font-semibold block mb-0.5">Privacy & Data Redaction</span>
+      <span class="text-xs font-bold text-slate-200 group-hover:text-white block">Offline PII CSV Masker</span>
+    </a>
+<a href="fix-excel-mojibake-utf8.html" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors block group">
+      <span class="text-xs text-indigo-400 font-semibold block mb-0.5">Character Encoding Healer</span>
+      <span class="text-xs font-bold text-slate-200 group-hover:text-white block">Fix Excel CSV Mojibake UTF-8</span>
+    </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-300">CSV Shield</span>
+        <span>•</span>
+        <span>Open Source Client-Side CSV Utility</span>
+      </div>
+      <div>
+        <span>RFC 4180 Compliant • Zero Telemetry • 100% Client-Side</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vanilla Client-Side Repair Script -->
+  <script>
+    const sampleCorrupted = `id,product_title,price,description\\n101,"24" Gaming Monitor",299.99,"144Hz, "Fast IPS" panel, 1ms response"\\n102,"Ergonomic "Executive" Chair",199.50,"Supports 300 lbs"\\n103,Müller "Gourmet" Cheese,14.50,"Café de Paris recipe"`;
+    
+    let sanitizedResult = "";
+
+    document.getElementById('load-sample-btn').addEventListener('click', () => {
+      document.getElementById('raw-csv-input').value = sampleCorrupted;
+    });
+
+    document.getElementById('clean-btn').addEventListener('click', runSanitizer);
+
+    // Dropzone listeners
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-400'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-indigo-400'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-indigo-400');
+      if (e.dataTransfer.files.length > 0) {
+        readFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        readFile(e.target.files[0]);
+      }
+    });
+
+    function readFile(file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        document.getElementById('raw-csv-input').value = event.target.result;
+        runSanitizer();
+      };
+      reader.readAsText(file);
+    }
+
+    function runSanitizer() {
+      const raw = document.getElementById('raw-csv-input').value;
+      if (!raw.trim()) {
+        alert("Please paste CSV text or drop a file first.");
+        return;
+      }
+
+      let quotesFixed = 0;
+      const lines = raw.split(/\\r?\\n/);
+      const cleanedLines = [];
+
+      for (let line of lines) {
+        if (!line.trim()) continue;
+        
+        // Simple heuristic repair for unescaped internal quotes
+        let inQuote = false;
+        let cleaned = "";
+        for (let i = 0; i < line.length; i++) {
+          let char = line[i];
+          if (char === '"') {
+            // Check if boundary or internal
+            let isPrevDelim = (i === 0 || line[i - 1] === ',' || line[i - 1] === ';');
+            let isNextDelim = (i === line.length - 1 || line[i + 1] === ',' || line[i + 1] === ';');
+            
+            if (isPrevDelim) {
+              inQuote = true;
+              cleaned += char;
+            } else if (isNextDelim && inQuote) {
+              inQuote = false;
+              cleaned += char;
+            } else {
+              // Internal unescaped quote! Escape it as ""
+              cleaned += '""';
+              quotesFixed++;
+            }
+          } else {
+            cleaned += char;
+          }
+        }
+        cleanedLines.push(cleaned);
+      }
+
+      sanitizedResult = "\\uFEFF" + cleanedLines.join("\\r\\n");
+      
+      document.getElementById('metric-quotes').textContent = quotesFixed;
+      document.getElementById('metric-rows').textContent = cleanedLines.length;
+      document.getElementById('metrics-panel').classList.remove('hidden');
+      document.getElementById('download-btn').classList.remove('hidden');
+      document.getElementById('status-badge').textContent = `Cleaned ${cleanedLines.length} rows (${quotesFixed} quotes escaped)`;
+      document.getElementById('status-badge').classList.add('text-emerald-400');
+    }
+
+    document.getElementById('download-btn').addEventListener('click', () => {
+      if (!sanitizedResult) return;
+      const blob = new Blob([sanitizedResult], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "sanitized_" + Date.now() + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

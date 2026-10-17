@@ -1,0 +1,6 @@
+Account_No,Entity_Name,Tax_ID,Currency,Amount,Transaction_Type,Description,Auditor_Remarks
+00010482,CafÃ© du Monde SAS,FR928471092,EUR,14520.00,Credit,"Q4 franchise royalty payment â€” verified by CFO","Reconciled against BNP Paribas statement â€“ clean"
+00029410,MÃ¼ller & Schmidt GmbH,DE812398711,EUR,8940.50,Debit,"Machinery maintenance invoice #49281: "Precision CNC" components","Requires original VAT invoice from DÃ¼sseldorf office"
+00030582,SociÃ©tÃ© GÃ©nÃ©rale Logistics,FR102938475,EUR,32500.00,Credit,"Cross-border freight haulage across â‚¬ zone","Approved by audit partner on 2026-01-14"
+00041920,Barclays International UK,GB992817264,GBP,18250.75,Wire,"Consulting fee for â€œProject Horizonâ€ strategy","Wire reference: 9481-2819-4820-1928"
+00059281,JosÃ© Silva & Filhos Lda,PT501928374,EUR,6720.00,Debit,"Raw material purchase from Porto factory","Original dispatch note signed by JosÃ© Silva"
