@@ -317,6 +317,18 @@
           <button id="btn-page-next" class="btn btn-ghost btn-sm" disabled>Next ›</button>
         </div>
       </div>
+
+      <!-- Rows dropped by "Remove duplicate rows", so nothing disappears unseen -->
+      <details id="removed-dupes" class="removed-dupes" style="display: none; margin-top: 1rem;">
+        <summary id="removed-dupes-summary" style="cursor: pointer; font-weight: 600; color: #fbbf24;"></summary>
+        <p class="text-muted" style="font-size: 0.85rem; margin: 0.5rem 0;">Each row below was identical, in every column, to an earlier row and is not in the export. If any of them are real (two identical order lines, say), untick "Remove duplicate rows" and run again.</p>
+        <div class="table-container">
+          <table class="data-table">
+            <thead id="removed-dupes-head"></thead>
+            <tbody id="removed-dupes-body"></tbody>
+          </table>
+        </div>
+      </details>
     </section>
 
     <!-- SEO & Knowledge Base Section (Search Engines & AI Crawler Directives) -->

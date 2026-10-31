@@ -417,6 +417,8 @@
     const { rows: rawRows, repairedLinesCount, repairedRowIndices } = parseCSV(cleanInput, effectiveDelimiter, opts.fixQuotes);
 
     let cleanRows = [];
+    const cleanRowNumbers = []; // 1-based row number in the input (header = 1) for each kept row
+    const removedDuplicates = []; // { inputRow, sameAsInputRow, cells }
     let emptyRowsRemoved = 0;
     let duplicatesRemoved = 0;
     let piiMaskedCount = 0;
@@ -432,6 +434,7 @@
         continue;
       }
       cleanRows.push(row);
+      cleanRowNumbers.push(i + 1);
     }
 
     if (cleanRows.length === 0) {
@@ -449,7 +452,8 @@
           zerosPreservedCount: 0,
           delimiter: effectiveDelimiter,
           durationMs: 0,
-          cellModifications: {}
+          cellModifications: {},
+          removedDuplicates: []
         }
       };
     }
@@ -459,7 +463,7 @@
     const dataRows = cleanRows.slice(1);
 
     const processedData = [];
-    const seenHashes = new Set();
+    const seenHashes = new Map(); // row hash -> input row number of its first occurrence
     const cellModifications = {}; // key: `${rowIndex}:${colIndex}` -> { type, original, fixed }
 
     for (let r = 0; r < dataRows.length; r++) {
@@ -561,11 +565,14 @@
       // 4. Deduplication
       if (opts.deduplicate) {
         const rowHash = JSON.stringify(updatedRow);
+        const inputRow = cleanRowNumbers[r + 1];
         if (seenHashes.has(rowHash)) {
           duplicatesRemoved++;
+          removedDuplicates.push({ inputRow, sameAsInputRow: seenHashes.get(rowHash), cells: updatedRow });
+          for (let c = 0; c < updatedRow.length; c++) delete cellModifications[`${outputRowIdx}:${c}`];
           continue;
         }
-        seenHashes.add(rowHash);
+        seenHashes.set(rowHash, inputRow);
       }
 
       processedData.push(updatedRow);
@@ -588,7 +595,8 @@
         zerosPreservedCount,
         delimiter: effectiveDelimiter,
         durationMs,
-        cellModifications
+        cellModifications,
+        removedDuplicates
       }
     };
   }

@@ -53,6 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPagePrev = document.getElementById('btn-page-prev');
   const btnPageNext = document.getElementById('btn-page-next');
   const pageIndicator = document.getElementById('page-indicator');
+  const removedDupes = document.getElementById('removed-dupes');
+  const removedDupesSummary = document.getElementById('removed-dupes-summary');
+  const removedDupesHead = document.getElementById('removed-dupes-head');
+  const removedDupesBody = document.getElementById('removed-dupes-body');
 
   // Export Buttons
   const btnExportCsv = document.getElementById('btn-export-csv');
@@ -261,6 +265,7 @@ organic-tea-selection,"Morning "Sunrise" Herbal Tea Variety Pack (60 Bags)","<p>
 
     currentPage = 1;
     renderTable(result.headers, result.rows);
+    renderRemovedDuplicates(result.headers, result.stats.removedDuplicates || []);
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -341,6 +346,36 @@ organic-tea-selection,"Morning "Sunrise" Herbal Tea Variety Pack (60 Bags)","<p>
     if (pageIndicator) pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
     if (btnPagePrev) btnPagePrev.disabled = (currentPage <= 1);
     if (btnPageNext) btnPageNext.disabled = (currentPage >= totalPages);
+  }
+
+  // List every row that deduplication dropped, with the earlier row it matched
+  function renderRemovedDuplicates(headers, removed) {
+    removedDupesHead.innerHTML = '';
+    removedDupesBody.innerHTML = '';
+    if (removed.length === 0) {
+      removedDupes.style.display = 'none';
+      return;
+    }
+    removedDupes.style.display = 'block';
+    removedDupesSummary.textContent = `${removed.length} duplicate row${removed.length === 1 ? ' was' : 's were'} removed. Show which`;
+
+    const trHead = document.createElement('tr');
+    ['Input row', 'Same as row', ...headers].forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      trHead.appendChild(th);
+    });
+    removedDupesHead.appendChild(trHead);
+
+    removed.forEach(d => {
+      const tr = document.createElement('tr');
+      [d.inputRow, d.sameAsInputRow, ...d.cells].forEach(cell => {
+        const td = document.createElement('td');
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+      removedDupesBody.appendChild(tr);
+    });
   }
 
   // Filter Input Listener

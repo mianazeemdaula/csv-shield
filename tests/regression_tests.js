@@ -48,4 +48,13 @@ check('SQL export escapes single quotes', /'O''Brien'/.test(E.toSQL('t', ['n'], 
 // 6. Delimiter detection on a European file with decimal commas
 check('semicolon file with decimal commas', run('name;price\nPen;1,50\nCup;2,75\n').stats.delimiter, ';');
 
+// 7. Removed duplicates are reported, row by row (input row numbers count the header as row 1)
+const dd = run('order,item,qty\n7,Pen,1\n\n8,Cup,2\n7,Pen,1\n7,Pen,1\n', { deduplicate: true });
+check('dedupe keeps first occurrences', dd.rows, [['7', 'Pen', '1'], ['8', 'Cup', '2']]);
+check('dedupe lists each removed row with the row it matched', dd.stats.removedDuplicates,
+  [{ inputRow: 5, sameAsInputRow: 2, cells: ['7', 'Pen', '1'] }, { inputRow: 6, sameAsInputRow: 2, cells: ['7', 'Pen', '1'] }]);
+check('no duplicates list when dedupe is off', run('a\n1\n1\n').stats.removedDuplicates, []);
+const dm = run('t,n\nIâ€™m,1\nIâ€™m,1\nok,2\n', { deduplicate: true });
+check('a dropped duplicate leaves no highlight on the next kept row', Object.keys(dm.stats.cellModifications), ['0:0']);
+
 console.log(`\n${pass} passed, ${fail} failed`);
